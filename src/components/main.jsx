@@ -12,19 +12,21 @@ export const Main = (props) => {
         xNext: true,
     });
 
+
+
+    const [sortASC, setSortASC] = useState(true);
+    const [isHoa, setHoa] = useState(false);
     const [winner, line] = findWinner(
         state.history[state.stepNumber].squares,
         props.size
     );
-
-    const [sortASC, setSortASC] = useState(true);
-
     const handleClick = (i) => {
         const history = state.history.slice(0, state.stepNumber + 1);
         const current = history[history.length - 1];
         const squares = current.squares.slice();
-        console.log(squares);
+
         if (findWinner(squares, props.size)[0] || squares[i]) {
+
             return;
         }
         squares[i] = state.xNext ? "X" : "O";
@@ -40,14 +42,35 @@ export const Main = (props) => {
             stepNumber: history.length,
             xNext: !state.xNext,
         });
+        if (!squares.includes(null)) {
+            setHoa(true)
+        }
+
     };
     const jumpToStep = (step) => {
+        setHoa(false)
         setState({
             ...state,
             stepNumber: step,
             xNext: step % 2 === 0,
         });
     };
+    function findWinner(squares, size) {
+
+        for (let i = 0; i < size; i++) {
+            for (let j = 0; j < size; j++) {
+                if (squares[size * i + j] == null) {
+                    continue;
+                }
+                let line = checkWin(squares, i, j, squares[size * i + j], size);
+                console.log(line);
+                if (line != null) {
+                    return [squares[size * i + j], line];
+                }
+            }
+        }
+        return [null, null];
+    }
     return (<div className="main">
         <div className="table-main" >
             <Table
@@ -59,6 +82,9 @@ export const Main = (props) => {
         </div>
         <div className="info-main">
             <div>
+                <div className="hoa">
+                    {isHoa ? "Hòa" : ''}
+                </div>
                 {winner
                     ? "Winner: " + winner
                     : "Next player: " + (state.xNext ? "X" : "O")}
@@ -97,38 +123,24 @@ export const Main = (props) => {
 
 
 }
-function findWinner(squares, size) {
-    for (let i = 0; i < size; i++) {
-        for (let j = 0; j < size; j++) {
-            if (squares[size * i + j] == null) {
-                continue;
-            }
-            let line = checkWin(squares, i, j, squares[size * i + j], size);
-            console.log(line);
-            if (line != null) {
-                return [squares[size * i + j], line];
-            }
-        }
-    }
-    return [null, null];
-}
+
 
 function checkWin(squares, i, j, data, size) {
     let result = [];
     let check = 0;
     // check hàng ngang
-    console.log(i,j);
-    if(size-5 >= j) {
-        for(let x = 0; x <= 4; x++) {
-            if(data == squares[size*i + j + x]) {
+    console.log(i, j);
+    if (size - 5 >= j) {
+        for (let x = 0; x <= 4; x++) {
+            if (data == squares[size * i + j + x]) {
                 check++;
-                result = [...result, size*i + j + x]
+                result = [...result, size * i + j + x]
             } else {
                 break;
             }
         }
-        if(check == 5) {
-            
+        if (check == 5) {
+
             return result;
         } else {
             check = 0;
@@ -137,16 +149,16 @@ function checkWin(squares, i, j, data, size) {
     }
 
     // check hàng dọc 
-    if(size-5 >= i) {
-        for(let x = 0; x <= 4; x++) {
-            if(data == squares[size*(i+x) + j]) {
+    if (size - 5 >= i) {
+        for (let x = 0; x <= 4; x++) {
+            if (data == squares[size * (i + x) + j]) {
                 check++;
-                result = [...result, size*(i+x) + j];
+                result = [...result, size * (i + x) + j];
             } else {
                 break;
             }
         }
-        if(check == 5) {
+        if (check == 5) {
             return result;
         } else {
             check = 0;
@@ -155,16 +167,16 @@ function checkWin(squares, i, j, data, size) {
     }
 
     // check hàng chéo phải
-    if(size-5 >= j && size-5 >= i) {
-        for(let x = 0; x <= 4; x++) {
-            if(data == squares[size*(i+x) + j+x]) {
+    if (size - 5 >= j && size - 5 >= i) {
+        for (let x = 0; x <= 4; x++) {
+            if (data == squares[size * (i + x) + j + x]) {
                 check++;
-                result = [...result, size*(i+x) + j+x];
+                result = [...result, size * (i + x) + j + x];
             } else {
                 break;
             }
         }
-        if(check == 5) {
+        if (check == 5) {
             return result;
         } else {
             check = 0;
@@ -173,16 +185,16 @@ function checkWin(squares, i, j, data, size) {
     }
 
     // check hàng chéo trái
-    if(size-5-1 <= j && size-5 >= i) {
-        for(let x = 0; x <= 4; x++) {
-            if(data == squares[size*(i+x) + j-x]) {
+    if (size - 5 - 1 <= j && size - 5 >= i) {
+        for (let x = 0; x <= 4; x++) {
+            if (data == squares[size * (i + x) + j - x]) {
                 check++;
-                result = [...result, size*(i+x) + j-x];
+                result = [...result, size * (i + x) + j - x];
             } else {
                 break;
             }
         }
-        if(check == 5) {
+        if (check == 5) {
             return result;
         } else {
             check = 0;
